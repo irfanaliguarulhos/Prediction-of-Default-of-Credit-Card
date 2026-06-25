@@ -12,7 +12,7 @@ Handles:
 
 import pyspark.sql.functions as F
 from pyspark.sql.window import Window
-from loguru import logger
+from logger import logger
 from pathlib import Path
 import json
 

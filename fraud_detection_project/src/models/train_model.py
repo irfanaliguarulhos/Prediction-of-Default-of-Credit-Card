@@ -1,5 +1,5 @@
 """Placeholder for model training module - Full implementation in progress"""
-from loguru import logger
+from logger import logger
 
 def run_model_training(config: dict) -> dict:
     """Main model training pipeline."""

@@ -20,12 +20,12 @@ import argparse
 import yaml
 import sys
 from pathlib import Path
-from loguru import logger
 from datetime import datetime
 
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent))
 
+from logger import logger, setup_logging
 from ingestion.ingest_data import run_ingestion
 from eda.explore_data import run_eda
 from features.engineer_features import run_feature_engineering
@@ -40,32 +40,6 @@ def load_config(config_path: str) -> dict:
     with open(config_path, 'r') as f:
         config = yaml.safe_load(f)
     return config
-
-
-def setup_logging(config: dict):
-    """Configure logging based on config."""
-    log_config = config.get('logging', {})
-    log_file = log_config.get('file', 'output/logs/fraud_detection.log')
-    
-    # Create log directory
-    Path(log_file).parent.mkdir(parents=True, exist_ok=True)
-    
-    # Configure loguru
-    logger.remove()
-    logger.add(
-        sys.stdout,
-        format=log_config.get('format', "{time:YYYY-MM-DD HH:mm:ss} | {level} | {message}"),
-        level=log_config.get('level', 'INFO')
-    )
-    logger.add(
-        log_file,
-        format=log_config.get('format', "{time:YYYY-MM-DD HH:mm:ss} | {level} | {message}"),
-        level=log_config.get('level', 'INFO'),
-        rotation=log_config.get('rotation', '100 MB'),
-        retention=log_config.get('retention', '30 days')
-    )
-    
-    return logger
 
 
 def run_pipeline(config: dict, stage: str = 'all'):

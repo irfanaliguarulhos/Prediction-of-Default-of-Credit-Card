@@ -1,5 +1,5 @@
 """Placeholder for model export module - Full implementation in progress"""
-from loguru import logger
+from logger import logger
 
 def export_model_for_serving(config: dict) -> dict:
     """Export trained model for serving."""

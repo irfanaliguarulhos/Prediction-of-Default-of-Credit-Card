@@ -15,7 +15,7 @@ from pyspark.sql.types import *
 from pyspark.sql.window import Window
 from delta import configure_spark_with_delta_pip
 from delta.tables import DeltaTable
-from loguru import logger
+from logger import logger
 from pathlib import Path
 import yaml
 

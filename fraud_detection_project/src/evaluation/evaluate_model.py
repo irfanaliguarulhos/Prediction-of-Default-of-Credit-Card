@@ -1,5 +1,5 @@
 """Placeholder for model evaluation module - Full implementation in progress"""
-from loguru import logger
+from logger import logger
 
 def run_evaluation(config: dict) -> dict:
     """Main model evaluation pipeline."""

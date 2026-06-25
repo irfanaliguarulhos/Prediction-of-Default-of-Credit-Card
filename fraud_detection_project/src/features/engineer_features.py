@@ -1,5 +1,5 @@
 """Placeholder for feature engineering module - Full implementation in progress"""
-from loguru import logger
+from logger import logger
 
 def run_feature_engineering(config: dict) -> dict:
     """Main feature engineering pipeline."""

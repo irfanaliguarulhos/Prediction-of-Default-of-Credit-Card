@@ -1,0 +1,156 @@
+{
+  "transactions": {
+    "total_records": 1,
+    "null_counts": {
+      "transaction_id": {
+        "count": 0,
+        "percentage": 0.0
+      },
+      "account_id": {
+        "count": 0,
+        "percentage": 0.0
+      },
+      "customer_id": {
+        "count": 0,
+        "percentage": 0.0
+      },
+      "amount": {
+        "count": 0,
+        "percentage": 0.0
+      },
+      "currency": {
+        "count": 0,
+        "percentage": 0.0
+      },
+      "merchant_id": {
+        "count": 0,
+        "percentage": 0.0
+      },
+      "merchant_category": {
+        "count": 0,
+        "percentage": 0.0
+      },
+      "device_id": {
+        "count": 0,
+        "percentage": 0.0
+      },
+      "ip_address": {
+        "count": 0,
+        "percentage": 0.0
+      },
+      "geo_location": {
+        "count": 0,
+        "percentage": 0.0
+      },
+      "event_time": {
+        "count": 0,
+        "percentage": 0.0
+      },
+      "event_date": {
+        "count": 0,
+        "percentage": 0.0
+      },
+      "transaction_type": {
+        "count": 0,
+        "percentage": 0.0
+      },
+      "channel": {
+        "count": 0,
+        "percentage": 0.0
+      },
+      "is_fraud": {
+        "count": 0,
+        "percentage": 0.0
+      }
+    },
+    "duplicate_counts": {
+      "total": 1,
+      "distinct": 1,
+      "duplicates": 0,
+      "duplicate_rate": 0.0
+    },
+    "invalid_values": {
+      "negative_amounts": 0
+    }
+  },
+  "kyc": {
+    "total_records": 1,
+    "null_counts": {
+      "customer_id": {
+        "count": 0,
+        "percentage": 0.0
+      },
+      "account_id": {
+        "count": 0,
+        "percentage": 0.0
+      },
+      "first_name": {
+        "count": 0,
+        "percentage": 0.0
+      },
+      "last_name": {
+        "count": 0,
+        "percentage": 0.0
+      },
+      "email": {
+        "count": 0,
+        "percentage": 0.0
+      },
+      "phone_hash": {
+        "count": 0,
+        "percentage": 0.0
+      },
+      "address": {
+        "count": 0,
+        "percentage": 0.0
+      },
+      "city": {
+        "count": 0,
+        "percentage": 0.0
+      },
+      "state": {
+        "count": 0,
+        "percentage": 0.0
+      },
+      "zip_code": {
+        "count": 0,
+        "percentage": 0.0
+      },
+      "country": {
+        "count": 0,
+        "percentage": 0.0
+      },
+      "ssn_hash": {
+        "count": 0,
+        "percentage": 0.0
+      },
+      "date_of_birth": {
+        "count": 0,
+        "percentage": 0.0
+      },
+      "kyc_date": {
+        "count": 0,
+        "percentage": 0.0
+      },
+      "risk_score": {
+        "count": 0,
+        "percentage": 0.0
+      },
+      "employment_status": {
+        "count": 0,
+        "percentage": 0.0
+      },
+      "annual_income": {
+        "count": 0,
+        "percentage": 0.0
+      }
+    },
+    "duplicate_counts": {
+      "total": 1,
+      "distinct": 1,
+      "duplicates": 0,
+      "duplicate_rate": 0.0
+    },
+    "invalid_values": {}
+  }
+}

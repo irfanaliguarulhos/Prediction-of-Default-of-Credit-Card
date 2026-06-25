@@ -10,8 +10,10 @@ Handles:
 """
 
 import pyspark.sql.functions as F
+from pyspark.sql import DataFrame
 from pyspark.sql.types import *
 from pyspark.sql.window import Window
+from delta import configure_spark_with_delta_pip
 from delta.tables import DeltaTable
 from loguru import logger
 from pathlib import Path
@@ -88,7 +90,11 @@ def enforce_schema(spark, raw_path: str, schema: StructType, merge_schema: bool 
     logger.info(f"Reading data from {raw_path} with schema enforcement")
     
     try:
-        df = spark.read.schema(schema).option("mergeSchema", merge_schema).json(raw_path)
+        df = (spark.read
+              .schema(schema)
+              .option("mergeSchema", merge_schema)
+              .option("multiline", "true")
+              .json(raw_path))
         logger.info(f"Successfully loaded {df.count()} records")
         return df
     except Exception as e:
@@ -164,22 +170,39 @@ def partition_and_write(df, output_path: str, partition_by: list, format: str = 
     logger.info(f"Successfully wrote data to {output_path}")
 
 
-def deduplicate(df, key_columns: list) -> DataFrame:
-    """Remove duplicate records based on key columns."""
+def deduplicate(df, key_columns: list, order_by: list[str] | None = None) -> DataFrame:
+    """Remove duplicate records based on key columns.
+
+    Order duplicates by the provided columns when possible, otherwise keep the
+    first record within each partition.
+    """
     logger.info(f"Deduplicating on columns: {key_columns}")
-    
-    window_spec = Window.partitionBy(*key_columns).orderBy(F.desc("event_time"))
-    
+
+    if order_by is None:
+        order_by = ["event_time"] if "event_time" in df.columns else []
+
+    order_exprs = []
+    for col_name in order_by:
+        if col_name in df.columns:
+            order_exprs.append(F.desc(col_name))
+        else:
+            logger.warning(f"Order-by column '{col_name}' not found in DataFrame; skipping")
+
+    if not order_exprs:
+        order_exprs.append(F.desc(F.lit(1)))
+
+    window_spec = Window.partitionBy(*key_columns).orderBy(*order_exprs)
+
     df_dedup = (df.withColumn("row_num", F.row_number().over(window_spec))
                 .filter(F.col("row_num") == 1)
                 .drop("row_num"))
-    
+
     original_count = df.count()
     dedup_count = df_dedup.count()
     removed = original_count - dedup_count
-    
+
     logger.info(f"Removed {removed} duplicates ({(removed/original_count)*100:.2f}%)")
-    
+
     return df_dedup
 
 
@@ -194,15 +217,17 @@ def run_ingestion(config: dict) -> dict:
     data_config = config.get('data', {})
     ingestion_config = config.get('ingestion', {})
     
-    spark = (SparkSession.builder
-             .appName(spark_config.get('app_name', 'FraudDetection'))
-             .master(spark_config.get('master', 'local[*]'))
-             .config("spark.executor.memory", spark_config.get('executor_memory', '4g'))
-             .config("spark.driver.memory", spark_config.get('driver_memory', '2g'))
-             .config("spark.sql.shuffle.partitions", spark_config.get('shuffle_partitions', 200))
-             .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")
-             .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")
-             .getOrCreate())
+    builder = (SparkSession.builder
+               .appName(spark_config.get('app_name', 'FraudDetection'))
+               .master(spark_config.get('master', 'local[*]'))
+               .config("spark.executor.memory", spark_config.get('executor_memory', '4g'))
+               .config("spark.driver.memory", spark_config.get('driver_memory', '2g'))
+               .config("spark.sql.shuffle.partitions", spark_config.get('shuffle_partitions', 200))
+               .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")
+               .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog"))
+    
+    builder = configure_spark_with_delta_pip(builder)
+    spark = builder.getOrCreate()
     
     results = {
         "transactions": {},
@@ -286,7 +311,7 @@ def run_ingestion(config: dict) -> dict:
         results['quality_reports']['kyc'] = kyc_quality
         
         # Deduplicate
-        kyc_clean = deduplicate(kyc_raw, ['customer_id', 'account_id'])
+        kyc_clean = deduplicate(kyc_raw, ['customer_id', 'account_id'], order_by=['kyc_date'])
         
         # Write to silver layer
         partition_and_write(
